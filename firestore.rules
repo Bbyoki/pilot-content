@@ -1,0 +1,90 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global default catch-all: DENY ALL
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Shared global primitives
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isSystemAdmin() {
+      return isSignedIn() && (
+        request.auth.token.email == "pablo@agencia7zion.com.br" ||
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true)
+      );
+    }
+
+    // User Profile Rules
+    match /users/{userId} {
+      allow get: if isOwner(userId) || isSystemAdmin();
+      allow list: if isSystemAdmin();
+      
+      allow create: if isSignedIn() && isOwner(userId) 
+        && request.resource.data.keys().hasAll(['uid', 'email', 'isAdmin', 'plan', 'status', 'createdAt'])
+        && request.resource.data.keys().size() == 6
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.email == request.auth.token.email
+        && (request.resource.data.isAdmin == false || request.auth.token.email == "pablo@agencia7zion.com.br")
+        && (request.resource.data.plan == "Free" || request.resource.data.plan == "Admin");
+
+      allow update: if isOwner(userId)
+        && request.resource.data.uid == resource.data.uid
+        && request.resource.data.email == resource.data.email
+        && request.resource.data.createdAt == resource.data.createdAt
+        && (request.resource.data.isAdmin == resource.data.isAdmin || isSystemAdmin())
+        && (request.resource.data.plan == resource.data.plan || isSystemAdmin())
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status']);
+        
+      allow delete: if isSystemAdmin();
+    }
+
+    // AI Posts Rules
+    match /posts/{postId} {
+      allow get: if isSignedIn() && (resource.data.userId == request.auth.uid || isSystemAdmin());
+      allow list: if isSignedIn() && (resource.data.userId == request.auth.uid || isSystemAdmin());
+      
+      allow create: if isSignedIn()
+        && isValidId(postId)
+        && request.resource.data.keys().hasAll(['id', 'userId', 'title', 'content', 'channel', 'tone', 'status', 'createdAt'])
+        && request.resource.data.keys().size() == 8
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.id == postId
+        && request.resource.data.title is string && request.resource.data.title.size() <= 200
+        && request.resource.data.content is string && request.resource.data.content.size() <= 50000
+        && request.resource.data.channel in ['LinkedIn', 'X / Twitter', 'Instagram', 'Dev.to']
+        && request.resource.data.tone in ['Profissional', 'Persuasivo', 'Criativo', 'Técnico']
+        && request.resource.data.status in ['Draft', 'Scheduled', 'Published'];
+
+      allow update: if isSignedIn() 
+        && resource.data.userId == request.auth.uid
+        && request.resource.data.userId == resource.data.userId
+        && request.resource.data.id == resource.data.id
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.title is string && request.resource.data.title.size() <= 200
+        && request.resource.data.content is string && request.resource.data.content.size() <= 50000
+        && request.resource.data.diff(resource.data).affectedKeys().hasAny(['title', 'content', 'status', 'channel', 'tone', 'scheduledTime']);
+
+      allow delete: if isSignedIn() && (resource.data.userId == request.auth.uid || isSystemAdmin());
+    }
+
+    // User analytics overview subcollection rules
+    match /users/{userId}/analytics/overview {
+      allow read: if isOwner(userId) || isSystemAdmin();
+      allow write: if isOwner(userId) || isSystemAdmin();
+    }
+  }
+}

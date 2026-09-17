@@ -1,0 +1,96 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-deep: #0F172A;
+  --color-brand-electric: #2563EB;
+  --color-brand-cyan: #06B6D4;
+  --color-neutral-white: #FFFFFF;
+  --color-neutral-offwhite: #F8FAFC;
+  --color-neutral-slate: #E2E8F0;
+  
+  --font-sans: "Inter", "Geist Sans", system-ui, -apple-system, sans-serif;
+}
+
+/* Custom background patterns for Linear/Vercel design style */
+.bg-grid-dots {
+  background-size: 32px 32px;
+  background-image: radial-gradient(circle, rgba(6, 182, 212, 0.09) 1px, transparent 1px);
+}
+
+.bg-grid-lines {
+  background-size: 60px 60px;
+  background-image: linear-gradient(to right, rgba(6, 182, 212, 0.04) 1px, transparent 1px),
+                    linear-gradient(to bottom, rgba(6, 182, 212, 0.04) 1px, transparent 1px);
+}
+
+/* Premium ambient glows and custom drop-shadows */
+.glow-effect-cyan {
+  box-shadow: 0 0 40px -10px rgba(6, 182, 212, 0.25);
+}
+
+.glow-effect-electric {
+  box-shadow: 0 0 50px -10px rgba(37, 99, 235, 0.35);
+}
+
+.glow-effect-border {
+  position: relative;
+}
+
+.glow-effect-border::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(to bottom right, rgba(6, 182, 212, 0.4), rgba(37, 99, 235, 0.1), transparent 50%);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* Custom radial gradient backdrop */
+.ambient-gradient {
+  background: radial-gradient(circle at 50% -100px, rgba(37, 99, 235, 0.2) 0%, rgba(6, 182, 212, 0.1) 40%, rgba(15, 23, 42, 0) 70%);
+}
+
+.ambient-bottom-gradient {
+  background: radial-gradient(circle at 50% 110%, rgba(37, 99, 235, 0.15) 0%, rgba(6, 182, 212, 0.08) 50%, rgba(15, 23, 42, 0) 85%);
+}
+
+/* Scroll Snap styling */
+html {
+  scroll-behavior: smooth;
+  background-color: #0F172A;
+  color: #F8FAFC;
+}
+
+/* Elegant scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0F172A;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(37, 99, 235, 0.2);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(6, 182, 212, 0.4);
+}
+
+/* Typing terminal indicator animation */
+@keyframes pulse-caret {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.terminal-caret::after {
+  content: '▋';
+  color: #06B6D4;
+  animation: pulse-caret 1s infinite;
+}

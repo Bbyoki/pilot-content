@@ -1,0 +1,62 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "Represents a user account in Pilot Content.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "The unique user identifier from Firebase Auth." },
+        "email": { "type": "string", "format": "email", "description": "User email address." },
+        "isAdmin": { "type": "boolean", "description": "Indicates if the user has administration bypass privileges." },
+        "plan": { "type": "string", "enum": ["Free", "Pro", "Enterprise", "Admin"], "description": "Subscription tier of the account." },
+        "status": { "type": "string", "enum": ["Active", "Inactive"], "description": "Account activation status." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Timestamp when the user account was created." }
+      },
+      "required": ["uid", "email", "isAdmin", "plan", "status", "createdAt"]
+    },
+    "Post": {
+      "title": "Post",
+      "description": "Represents an editorial social media post created by the AI engine.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique identifier of the post." },
+        "userId": { "type": "string", "description": "The creator UID." },
+        "title": { "type": "string", "description": "The topic input or post title." },
+        "content": { "type": "string", "description": "The generated rich text markdown or text." },
+        "channel": { "type": "string", "enum": ["LinkedIn", "X / Twitter", "Instagram", "Dev.to"], "description": "Target publishing social grid." },
+        "tone": { "type": "string", "enum": ["Profissional", "Persuasivo", "Criativo", "Técnico"], "description": "Copywriting tone of voice." },
+        "status": { "type": "string", "enum": ["Draft", "Scheduled", "Published"], "description": "Lifecycle status of this post." },
+        "scheduledTime": { "type": "string", "description": "Optional scheduled release ISO date string." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Generation timestamp." }
+      },
+      "required": ["id", "userId", "title", "content", "channel", "tone", "status", "createdAt"]
+    },
+    "Analytics": {
+      "title": "Analytics",
+      "description": "Stores high-level engagement and production statistics for a user.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "Reference to the owner user." },
+        "postsCount": { "type": "number", "description": "Number of social posts produced in total." },
+        "sharesCount": { "type": "number", "description": "Number of direct publications made by the engine." },
+        "engagementFactor": { "type": "number", "description": "Weighted artificial performance feedback factor." },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Latest update timestamp." }
+      },
+      "required": ["userId", "postsCount", "sharesCount", "engagementFactor", "updatedAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profiling document mapped directly to Auth identifier."
+    },
+    "/posts/{postId}": {
+      "schema": "Post",
+      "description": "Root collection of generated posts."
+    },
+    "/users/{userId}/analytics/overview": {
+      "schema": "Analytics",
+      "description": "Unique user statistics dashboard record."
+    }
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "Pilot Content",
+  "description": "Crie, otimize e publique conteúdo rico com IA em escala. Um piloto automático completo para suas redes sociais.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
